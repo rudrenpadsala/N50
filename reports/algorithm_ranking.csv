@@ -1,0 +1,9 @@
+Algorithm,Rank by Average Return,Rank by Average Sharpe,Rank by Average Drawdown
+Buy & Hold,1,1,8
+Monte Carlo,2,4,7
+Value Iteration,3,2,5
+Policy Iteration,4,3,6
+Q-Learning,5,6,3
+Expected SARSA,6,7,2
+Double Q-Learning,7,8,1
+SARSA,8,5,4

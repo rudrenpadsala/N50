@@ -1,0 +1,26 @@
+# Secrets - never commit real credentials (see .env.example for the template)
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Runtime caches (Angel One scrip master, etc. - re-downloaded automatically)
+data/cache/
+news_cache/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

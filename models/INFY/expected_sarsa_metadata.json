@@ -1,0 +1,16 @@
+{
+  "company": "INFY",
+  "algorithm": "Expected SARSA",
+  "states": 36,
+  "actions": 3,
+  "alpha": 0.1,
+  "gamma": 0.95,
+  "initial_epsilon": 1.0,
+  "minimum_epsilon": 0.01,
+  "epsilon_decay": 0.995,
+  "episodes": 500,
+  "training_start": "2015-01-01",
+  "training_end": "2024-12-31",
+  "initial_capital": 100000,
+  "transaction_cost": 0.001
+}

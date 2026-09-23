@@ -1,0 +1,14 @@
+{
+  "company": "APSEc1_NS",
+  "algorithm": "Policy Iteration",
+  "states": 36,
+  "actions": 3,
+  "gamma": 0.95,
+  "theta": 1e-06,
+  "training_start": "2015-01-01",
+  "training_end": "2024-12-31",
+  "initial_capital": 100000,
+  "transaction_cost": 0.001,
+  "training_iterations": 4,
+  "convergence_status": "Converged"
+}

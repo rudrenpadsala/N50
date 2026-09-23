@@ -1,0 +1,70 @@
+# Phase 1 - Central project configuration.
+# All Sprint 2 modules read constants from here instead of hard-coding them.
+
+environment:
+  initial_capital: 100000          # INITIAL_CAPITAL (Rs.)
+  transaction_cost: 0.001          # TRANSACTION_COST = 0.1%, applied to BUY/SELL only
+  invalid_action_penalty: -0.001   # INVALID_ACTION_PENALTY for no-op BUY/SELL
+  shares_per_trade: 1              # BUY/SELL trade exactly 1 virtual share at a time
+
+features:
+  ma_short_window: 5     # MA5
+  ma_long_window: 20     # MA20
+  rsi_period: 14          # standard 14-period RSI
+  rsi_low_threshold: 30   # RSI < 30 -> RSI_LOW
+  rsi_high_threshold: 70  # RSI > 70 -> RSI_HIGH
+  volatility_window: 20   # rolling window (in days) for volatility
+
+data:
+  train_start: "2015-01-01"
+  train_end: "2024-12-31"
+  test_start: "2025-01-01"
+  test_end: "2026-07-31"
+
+rl:
+  alpha: 0.1               # learning rate for Q-Learning / SARSA
+  gamma: 0.95               # discount factor (all 3 algorithms)
+  epsilon_start: 1.0        # initial exploration rate
+  epsilon_min: 0.01         # floor for epsilon
+  epsilon_decay: 0.995      # multiplicative decay applied once per episode
+  episodes: 500             # training episodes per company per algorithm
+  random_seed: 42           # for reproducibility (Python + NumPy)
+
+backtest:
+  # Sprint 5 - backtesting / evaluation-only settings. Never used during
+  # training (Sprints 3-4) - kept separate so no testing-period concern
+  # can leak backward into the `rl:` / `dp:` sections above.
+  risk_free_rate: 0.0        # annual risk-free rate assumed for Sharpe Ratio (documented, Section 8)
+  trading_days_per_year: 252 # annualization factor for Sharpe Ratio
+
+dp:
+  # Sprint 4 - Value Iteration / Policy Iteration (model-based Dynamic
+  # Programming). Kept as its own section so DP hyperparameters never
+  # need to be hard-coded in value_iteration.py / policy_iteration.py.
+  gamma: 0.95               # discount factor - SAME value as rl.gamma so all 5 algorithms are comparable
+  theta: 0.000001           # convergence tolerance on max |V_new - V_old|
+  max_iterations: 1000      # safety cap on Value Iteration sweeps / Policy Iteration cycles
+  policy_init: "HOLD"       # initial policy for Policy Iteration: "HOLD" or "RANDOM"
+
+news_risk:
+  # News & Risk Layer - a SEPARATE layer on top of the RL decision (see
+  # src/news/ and src/risk/). Never used for RL training - live-only.
+  lookback_hours: 48             # how far back to search for company news
+  cache_minutes: 20              # how long a fetched news batch is reused before re-querying the API
+  max_articles: 5                # articles shown/considered per company (legacy single-tier analyze_company_news)
+  price_shock_threshold: 0.05    # |daily return| >= 5% -> "large price movement"
+  extreme_price_shock_threshold: 0.08  # |daily return| >= 8% -> "extreme price movement"
+  volume_spike_multiple: 2.0     # today's volume >= 2x the recent MA20 volume -> "volume spike"
+  drawdown_window_days: 20       # trailing window used to compute recent drawdown-from-high
+  drawdown_threshold: 0.10       # >=10% off the trailing high -> counted toward market risk
+  # --- 3-tier News & Risk Layer (COMPANY / SECTOR / MACRO - see
+  # src/news/company_sector_map.py, src/news/news_analyzer.py) ---
+  max_articles_per_tier: 3       # articles shown per tier (project spec: "top 2-3 relevant articles in each")
+  relevance_threshold: 30        # 0-100; articles scoring below this are rejected as IRRELEVANT (src/news/relevance.py)
+  company_weight: 0.6            # overall_news_impact / overall_news_risk weighting - MUST sum to 1.0 - never hidden in code
+  sector_weight: 0.3
+  macro_weight: 0.1
+  # Event severity scale: 0=None, 1=Low, 2=Medium, 3=High, 4=Critical (see src/news/event_detector.py)
+  # News risk scale: 0=None, 1=Low, 2=Moderate, 3=High, 4=Critical (see src/risk/news_risk.py)
+  # Market risk scale: 0=Low, 1=Moderate, 2=High, 3=Extreme (see src/risk/market_shock.py)
+  # Relevance score bands: COMPANY 90-100, SECTOR 60-89, MACRO 30-59, IRRELEVANT 0-29 (see src/news/relevance.py)

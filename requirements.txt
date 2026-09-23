@@ -1,0 +1,17 @@
+pandas>=2.0
+pytest>=7.0
+PyYAML>=6.0
+numpy>=1.24
+matplotlib>=3.7
+streamlit>=1.30
+tabulate>=0.9
+requests>=2.31
+pyotp>=2.9
+python-dotenv>=1.0
+vaderSentiment>=3.3
+
+# Optional (News & Risk Layer): a finance-specific sentiment model.
+# Not required - src/news/sentiment.py falls back to VADER above if
+# these aren't installed. Uncomment to enable FinBERT:
+# transformers>=4.30
+# torch>=2.0
