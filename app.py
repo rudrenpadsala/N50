@@ -131,7 +131,28 @@ CUSTOM_CSS = """
     --green: #15A362; --red: #E0483F; --amber: #D98A1A; --indigo: #4F5BD5;
 }
 
-#MainMenu, footer, header[data-testid="stHeader"] {visibility: hidden;}
+/* BUG FIX (2026-09): the old rule was `header[data-testid="stHeader"]
+   {visibility: hidden;}`. visibility:hidden is inherited by children
+   unless a child explicitly overrides it - and on mobile, the sidebar's
+   open/close toggle (the arrow/hamburger control) lives inside this
+   same header element. Hiding the whole header therefore also hid the
+   only way to open the sidebar on a phone, even though the sidebar
+   itself still worked fine on desktop (where it's always expanded and
+   never needs that toggle). Fix: hide only the top-right icon toolbar
+   (Streamlit's own menu / GitHub / Deploy icons) and make the header's
+   background transparent for the same clean look, instead of hiding
+   the header element itself - and explicitly force every known variant
+   of the sidebar-toggle control to stay visible as a safety net, since
+   the exact element Streamlit uses for it has changed across versions. */
+#MainMenu, footer {visibility: hidden;}
+header[data-testid="stHeader"] {background: transparent; box-shadow: none;}
+header[data-testid="stHeader"] [data-testid="stToolbar"] {visibility: hidden; height: 0;}
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
+button[data-testid="baseButton-headerNoPadding"],
+[data-testid="stSidebarCollapseButton"] {
+    visibility: visible !important; display: flex !important; opacity: 1 !important;
+}
 .stApp {background: var(--bg);}
 .block-container {padding-top: 1.8rem; padding-bottom: 3rem; max-width: 1000px;}
 
