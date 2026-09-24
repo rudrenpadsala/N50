@@ -275,6 +275,120 @@ h1, h2, h3, h4, .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
 [data-testid="stMetricValue"] {font-feature-settings: 'tnum' 1;}
 .stCaption, [data-testid="stCaptionContainer"] {color: var(--ink-faint) !important;}
 [data-testid="stExpander"] {border: 1px solid var(--border); border-radius: 12px; background: var(--card);}
+
+/* ===========================================================================
+   MOBILE RESPONSIVENESS
+   Streamlit already serves a correct responsive viewport meta tag and
+   stacks st.columns() vertically below ~640px on its own - the rules
+   below handle everything this app's OWN custom markup (card grids, the
+   hero header, the decision card, the flow strip, buttons) doesn't get
+   for free from Streamlit. Two breakpoints: 640px (tablets / large
+   phones landscape) and 480px (phones portrait, the common case).
+   =========================================================================== */
+
+/* Applies at every width, not just mobile - prevents long company names,
+   headlines or reasons from ever forcing horizontal scroll on a narrow
+   screen, which is the single most common way a "desktop" page breaks
+   on mobile. */
+.stApp, .stMarkdown, .info-card .value, .decision-wrap, .reason-card,
+.summary-card .row, .status-strip, .hero h1, .hero .subtitle {
+    overflow-wrap: break-word; word-break: break-word;
+}
+html, body {overflow-x: hidden;}
+
+@media (max-width: 640px) {
+    .block-container {padding-top: 1.1rem; padding-left: 0.9rem; padding-right: 0.9rem; padding-bottom: 2.2rem;}
+
+    .hero {padding: 2px 0 16px 0;}
+    .hero h1 {font-size: clamp(1.5rem, 6vw, 1.9rem) !important; line-height: 1.15;}
+    .hero .subtitle {font-size: 0.88rem;}
+    .hero .eyebrow {font-size: 0.72rem; padding: 3px 9px; margin-bottom: 8px;}
+
+    /* Card grids: let 2 narrower cards sit side by side instead of the
+       desktop min-width forcing an awkward 1-then-2 wrap. */
+    .card-row {gap: 8px; margin-bottom: 0.9rem;}
+    .info-card {min-width: 122px; padding: 11px 12px; border-radius: 10px;}
+    .info-card .label {font-size: 0.66rem;}
+    .info-card .value {font-size: 1.08rem;}
+    .info-card .sub {font-size: 0.76rem;}
+
+    .signal-card {padding: 13px;}
+    .signal-card .signal-status {font-size: 0.98rem;}
+    .signal-card .signal-text {font-size: 0.8rem;}
+
+    /* The AI Decision card is the visual centerpiece - keep it bold but
+       scale the giant action text down so BUY/HOLD/SELL never wraps or
+       crowds the card edges on a narrow phone. */
+    .decision-wrap {padding: 22px 16px 18px 16px; border-radius: 16px;}
+    .decision-wrap .action {font-size: clamp(2.1rem, 12vw, 2.8rem);}
+    .decision-wrap .message {font-size: 0.9rem;}
+
+    .status-strip {padding: 10px 12px; font-size: 0.8rem; gap: 8px;}
+    .reason-card {padding: 10px 13px;}
+    .reason-card .reason-title {font-size: 0.88rem;}
+    .reason-card .reason-text {font-size: 0.82rem;}
+
+    .summary-card {padding: 13px 14px;}
+    .summary-card .row {font-size: 0.84rem; padding: 6px 0;}
+
+    /* Flow strip (Market Data -> Technical Signals -> ... -> AI Decision):
+       5 pills + arrows never fit a phone's width, and letting them wrap
+       breaks the left-to-right "flow" reading order. Instead, keep it on
+       one line and let it scroll horizontally - a well-understood mobile
+       pattern - rather than reflowing into a confusing multi-row wrap. */
+    .flow-strip {
+        flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px; margin-left: -0.9rem; margin-right: -0.9rem;
+        padding-left: 0.9rem; padding-right: 0.9rem; scrollbar-width: thin;
+    }
+    .flow-strip::-webkit-scrollbar {height: 4px;}
+    .flow-strip::-webkit-scrollbar-thumb {background: var(--border); border-radius: 999px;}
+    .flow-step {flex-shrink: 0; font-size: 0.76rem; padding: 5px 12px; white-space: nowrap;}
+
+    .app-footer {margin-top: 1.6rem; padding-top: 12px; font-size: 0.76rem;}
+
+    /* Touch targets: Apple/Google's own guidance is a 44px minimum hit
+       area - the desktop button height was comfortably mouse-sized but
+       tight for a thumb. Also spans full width on mobile, which is the
+       standard "primary action" pattern on phones and easier to hit
+       than a small button floating on the left. */
+    .stButton>button {min-height: 44px; width: 100%; font-size: 0.92rem;}
+
+    /* Native Streamlit inputs/selects: match the same touch-friendly
+       minimum height so the company picker and price field are as easy
+       to tap as everything else on the page. */
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+    .stTextInput>div>div>input {min-height: 44px;}
+
+    [data-testid="stExpander"] summary {padding: 10px 12px; font-size: 0.9rem;}
+
+    /* Safety net for Streamlit's own st.columns() (the 3-up Why-signal
+       cards, Upside/Downside metrics, and the confidence-ring centering
+       columns): Streamlit stacks these on its own past its default
+       breakpoint, but this guarantees a clean full-width single column
+       with sane spacing even if that default ever changes, rather than
+       silently depending on undocumented framework behavior. */
+    [data-testid="stHorizontalBlock"] {flex-wrap: wrap !important; row-gap: 10px;}
+    [data-testid="stHorizontalBlock"] > div {min-width: 100% !important; flex: 1 1 100% !important;}
+    [data-testid="stMetricValue"] {font-size: 1.3rem !important;}
+}
+
+@media (max-width: 480px) {
+    /* Below ~480px (most phones in portrait) a 2-up card grid still
+       feels cramped for 3-4 metric cards - go fully single-column so
+       every number stays legible instead of shrinking further. */
+    .info-card {flex-basis: 100%; min-width: 0;}
+    .decision-wrap .action {font-size: clamp(1.9rem, 14vw, 2.4rem);}
+    .hero h1 {font-size: clamp(1.35rem, 7vw, 1.6rem) !important;}
+}
+
+/* Landscape phones (short viewport height): the sticky/animated
+   elements shouldn't eat too much vertical space when there's little
+   of it to begin with. */
+@media (max-height: 420px) and (orientation: landscape) {
+    .hero {padding: 2px 0 10px 0;}
+    .decision-wrap {padding: 16px 16px 14px 16px;}
+}
 </style>
 """
 
